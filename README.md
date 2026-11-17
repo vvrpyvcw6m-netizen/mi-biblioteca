@@ -1,60 +1,47 @@
-# Mi Biblioteca · versión 1.0
+# Mi Biblioteca — versión 1.5
 
-Una biblioteca personal para iPhone, sin cuentas ni servidor de datos.
+PWA para gestionar una biblioteca personal de libros **en papel y ebook** desde un iPhone. No incluye audiolibros.
 
-## Archivos incluidos
-- `index.html` — aplicación y formularios.
-- `styles.css` — diseño adaptable a móvil.
-- `app.js` — lógica de libros, búsqueda ISBN, escáner y copias.
-- `manifest.webmanifest` — instalación en pantalla de inicio.
-- `sw.js` — caché para uso sin conexión de la interfaz y fichas.
-- `icon-192.png` / `icon-512.png` — iconos.
+## Novedades de la versión 1.5
 
-## Instalación usando **solo el iPhone**
+- **Formato:** Papel o Ebook. Para Papel, «Ubicación física»; para Ebook, «Plataforma / ubicación digital» (Kindle, Apple Books, Kobo, PDF u otro texto libre).
+- **Tipo de obra:** Ensayo, novela, biografía, memorias, relatos y cuentos, poesía, teatro, manual, divulgación, otro o sin clasificar.
+- **Materias / ramas del conocimiento:** campo editable (por ejemplo «Economía, Filosofía, Derecho»). Admite varias materias separadas por comas y conserva las que ya hayas escrito.
+- **Tres filtros combinables** en Biblioteca: formato, tipo y materia. Se combinan también con «Por leer / Leyendo / Leídos» y con la búsqueda de texto. Botón de limpieza.
+- **Buscar por portada:** fotografiarla con el iPhone, elegir imagen de Fotos o escribir título/autor. El sistema extrae texto mediante OCR local y consulta posibles coincidencias en Open Library y Google Books. **Debes elegir la coincidencia y revisar edición/ISBN** antes de guardar.
 
-1. Descarga el ZIP y ábrelo en **Archivos** de iOS. Púlsalo para descomprimirlo.
-2. En Safari, entra en https://github.com/new e inicia sesión o crea una cuenta de GitHub.
-3. Crea un repositorio **público**, por ejemplo `mi-biblioteca`, con la rama `main`.
-4. En el repositorio pulsa **Add file → Upload files** (en Safari quizá tengas que usar **Solicitar sitio web de escritorio**). Desde **Elegir archivos → Explorar** elige todos los archivos de la carpeta `mi-biblioteca` descomprimida, incluido `index.html`, y confirma la subida («Commit changes»). Deben quedar en la **raíz del repositorio**, no en una subcarpeta.
-5. En **Settings → Pages → Build and deployment**, selecciona **Deploy from a branch**, rama `main`, carpeta `/ (root)` y guarda.
-6. Tu dirección será `https://TU-USUARIO.github.io/mi-biblioteca/` (sustituye TU-USUARIO por el nombre real de tu cuenta). La publicación puede tardar unos minutos.
-7. Abre ese enlace en **Safari**. Toca **Compartir → Añadir a pantalla de inicio** y, si sale la opción, activa **Abrir como aplicación web**. Pulsa **Añadir**.
-8. Abre «Mi Biblioteca» desde el icono y añade tu primer libro.
+## Compatibilidad con libros ya guardados
 
-Si GitHub no permite seleccionar muchos archivos juntos en Safari, súbelos en varias tandas con **Add file → Upload files**.
+La app sigue usando el MISMO nombre y versión de base de datos (`mi-biblioteca-db`, versión 1). La actualización NO limpia ni reemplaza los libros guardados.
 
-**Importante**: no abras `index.html` directamente desde Archivos para instalarla. El modo PWA y la cámara requieren una dirección HTTPS. Las fichas pueden funcionar localmente en un archivo, pero la instalación real exige la web publicada.
+- Libros antiguos sin formato: **Papel**.
+- Libros antiguos sin tipo: **Sin clasificar**, hasta que edites su ficha.
+- La antigua información del campo `genre` sigue siendo la **materia** en la versión nueva; no se borra.
+- Los datos nuevos se guardan en las fichas cuando las editas o creas.
 
-## Funcionalidad
+**Haz una copia de seguridad en Ajustes → Exportar mi biblioteca antes de actualizar. No borres la PWA, no vacíes sus datos web y no publiques el JSON de copia en GitHub.**
 
-- Añadir, editar, ver y eliminar libros.
-- ISBN-10 y ISBN-13, con comprobación de dígitos; búsqueda en la API de Open Library.
-- Lectura con cámara de códigos EAN/UPC que contengan ISBN, mediante `html5-qrcode`.
-- Portadas, autor, editorial, año, género, ubicación física, páginas, estado de lectura, fechas, puntuación y notas.
-- Búsqueda por texto, filtros y ordenación.
-- Lecturas en curso, progreso por páginas y pendientes.
-- Estadísticas de colección, libros terminados y valoraciones.
-- Exportar e importar JSON de copias de seguridad.
-- Uso sin conexión de la interfaz y fichas guardadas después de la primera carga.
+## Actualización desde iPhone
 
-## Privacidad y límites importantes
+1. Desde la app anterior, **exporta la biblioteca** y guarda el `.json` en la app Archivos.
+2. Descomprime `Mi-Biblioteca-actualizacion-v1.5.zip` con Archivos del iPhone.
+3. Accede a tu repositorio: `https://github.com/vvrpyvcw6m-netizen/mi-biblioteca`.
+4. Sube o reemplaza los **cuatro archivos** directamente en la raíz, no dentro de una carpeta: `app.js`, `index.html`, `styles.css` y `sw.js`. En Safari puede resultar necesario «Solicitar sitio web de escritorio» para ver `Add file → Upload files`.
+5. Confirma `Commit changes` y abre `https://vvrpyvcw6m-netizen.github.io/mi-biblioteca/` en Safari. Cuando se publiquen los cambios, entra en **Ajustes** y confirma **Versión 1.5**. Es posible que debas cerrar y volver a abrir la app instalada para cargar la actualización.
+6. Prueba los filtros, busca por portada y verifica que los libros anteriores siguen allí.
 
-- **Los libros se guardan localmente en el iPhone** mediante IndexedDB, o localStorage como alternativa. GitHub Pages aloja solamente el código público de la app, **no** tus fichas ni tus notas.
-- **No hay sincronización automática** entre dispositivos. Exporta copias JSON periódicas desde Ajustes y guárdalas en Archivos o iCloud Drive.
-- **Safari y la PWA instalada pueden usar almacenamientos diferentes.** Añade los libros desde la app instalada, no desde Safari. Si ya has añadido libros en Safari, exporta la copia allí e impórtala en la app.
-- Si eliminas la aplicación, borras sus datos web o cambias de iPhone sin copia, podrías perder la colección.
-- La consulta ISBN requiere Internet y depende de los datos que tenga Open Library: puede faltar información o existir una edición diferente.
-- Las portadas requieren conexión si no se han guardado en la caché del navegador.
-- Al pulsar «Escanear», el navegador descarga desde jsDelivr o unpkg la biblioteca externa `html5-qrcode` (versión 2.3.8), y solicita permiso para acceder a la cámara. El escaneo puede fallar en determinados iPhone o versiones de iOS; siempre puedes escribir el ISBN a mano.
-- Los datos se exportan en texto JSON: **no están cifrados**. Guarda las copias en un lugar privado.
-- GitHub Pages publica el código de forma pública, pero **nunca incluyas archivos de tus copias de seguridad en el repositorio**.
+## Privacidad y límites
 
-## Datos guardados de cada libro (versión 1)
+- GitHub Pages aloja el código públicamente, pero las fichas personales viven en el almacenamiento local (IndexedDB; fallback localStorage) **del navegador específico donde las registraste**. Safari, DuckDuckGo y la PWA instalada pueden tener bases de datos separadas.
+- El OCR procesa la fotografía en el navegador, pero primero carga código/lenguajes del motor Tesseract desde una CDN. La aplicación no tiene servidor propio ni incorpora una función para subir tu fotografía.
+- La app **sí envía el texto de la búsqueda** a Open Library y Google Books. Las portadas sugeridas se descargan desde sus proveedores externos. Esos proveedores pueden registrar las consultas o accesos según sus políticas.
+- Es una búsqueda de posibles coincidencias, no un identificador infalible de ediciones. La portada puede ser difícil de leer o los catálogos incompletos. En esos casos, escribe parte del título en el buscador por portada o completa la ficha manualmente.
+- Almacenamiento local no equivale a copia en iCloud ni a una cuenta sincronizada; realiza copias `.json` periódicas.
 
-`id`, `title`, `author`, `isbn`, `publisher`, `year`, `pages`, `genre`, `location`, `status` (`pendiente` / `leyendo` / `leido`), `currentPage`, `startedAt`, `finishedAt`, `rating` (0–5), `notes`, `coverUrl`, `createdAt`, `updatedAt`.
+## Archivos
 
-## Tecnología
-
-HTML, CSS, JavaScript nativo, IndexedDB, Service Worker y Web App Manifest.
-
-Fuentes: https://openlibrary.org/dev/docs/api/books · https://github.com/mebjas/html5-qrcode · https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+- `index.html`: interfaz y formularios.
+- `app.js`: catálogo, filtros, ISBN, OCR, búsqueda por portada, importación/exportación.
+- `styles.css`: diseño móvil.
+- `sw.js`: caché PWA con nombre v1.5, red primero y fallback sin conexión.
+- `manifest.webmanifest`, `icon-192.png`, `icon-512.png`: instalación y iconos.
