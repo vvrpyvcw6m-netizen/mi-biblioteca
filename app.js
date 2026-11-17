@@ -13,7 +13,7 @@ const SCANNER_CDNS = [
 ];
 const LABELS = {pendiente:'Por leer', leyendo:'Leyendo', leido:'Leído'};
 const $ = (id) => document.getElementById(id);
-const state = {books:[],tab:'biblioteca',filter:'todos',query:'',sort:'newest',db:null,storage:'indexedDB',activeId:null,scanner:null,scannerRunning:false,scanResolved:false,scannerToken:0,scanHintTimer:null,toastTimer:null};
+const state = {books:[],tab:'biblioteca',filter:'todos',query:'',sort:'newest',db:null,storage:'indexedDB',activeId:null,scanner:null,scannerRunning:false,scanResolved:false,scannerToken:0,scanHintTimer:null,photoObjectUrl:null,toastTimer:null};
 
 function escapeHTML(value='') {
   return String(value ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -130,7 +130,7 @@ function renderStats(){
  $('content').innerHTML=`<span class="eyebrow">TU BIBLIOTECA EN NÚMEROS</span><h1 class="page-title">Tu historia lectora</h1><p class="page-subtitle">Una mirada a los libros que te acompañan.</p><div class="stat-grid"><div class="stat-box"><strong>${count}</strong><span>Libros en tu colección</span></div><div class="stat-box"><strong>${counts.leido}</strong><span>Libros leídos</span></div><div class="stat-box"><strong>${finished}</strong><span>Terminados en ${thisYear}</span></div><div class="stat-box"><strong>${average}${average==='—'?'':' ★'}</strong><span>Valoración media</span></div></div><div class="mini-card"><h3>Estado de tus lecturas</h3>${rows.map(([key,label,num,cl])=>`<div class="bar-item"><div class="bar-title"><span>${label}</span><strong>${num}</strong></div><div class="bar-bg"><div class="bar-fill ${cl}" style="width:${count?Math.round(num*100/count):0}%"></div></div></div>`).join('')}</div><div class="mini-card"><h3>Un poco más</h3><p class="muted">Páginas totales de los libros marcados como leídos: <strong>${pages.toLocaleString('es-ES')}</strong></p><p class="muted">Libros valorados: <strong>${rated.length}</strong></p><p class="muted">La cifra de páginas depende de las que hayas registrado en cada ficha.</p></div>${Object.keys(byYear).length?`<div class="mini-card"><h3>Terminados por año</h3>${Object.entries(byYear).sort((a,b)=>b[0].localeCompare(a[0])).map(([year,num])=>`<div class="bar-title" style="padding:8px 0;border-bottom:1px solid var(--line)"><span>${escapeHTML(year)}</span><strong>${num} ${num===1?'libro':'libros'}</strong></div>`).join('')}</div>`:''}`;
 }
 function renderAjustes(){
- $('content').innerHTML=`<span class="eyebrow">TU ESPACIO</span><h1 class="page-title">Ajustes</h1><p class="page-subtitle">Tus libros son tuyos. Conserva una copia de tu colección.</p><div class="mini-card"><h3>Copias de seguridad</h3><button type="button" class="settings-button" data-action="export"><span><strong>Exportar mi biblioteca</strong><small>Crear un archivo JSON con todos tus libros y notas.</small></span><span class="arrow">↓</span></button><button type="button" class="settings-button" data-action="import"><span><strong>Importar biblioteca</strong><small>Recuperar libros desde un archivo JSON. No borra los existentes.</small></span><span class="arrow">↑</span></button></div><div class="mini-card"><h3>Privacidad y funcionamiento</h3><p class="muted">Tus fichas se almacenan en este dispositivo mediante ${state.storage==='indexedDB'?'IndexedDB':'almacenamiento local alternativo'}. No creamos ninguna cuenta ni enviamos tu colección a un servidor propio.</p><p class="muted">La búsqueda por ISBN consulta Open Library. Las portadas se cargan de sus direcciones de origen. Para escanear códigos, se carga una biblioteca de lectura externa al activar la cámara.</p><p class="muted"><strong>Importante:</strong> Safari y una aplicación añadida a Inicio pueden tener almacenamientos separados. Importa una copia dentro de la aplicación instalada si fuera necesario.</p></div><div class="mini-card"><h3>Acerca de esta versión</h3><p class="muted">Mi Biblioteca · Versión 1.2. Funciona sin conexión para consultar y modificar fichas ya guardadas; la consulta ISBN, las portadas no almacenadas y el lector de barras necesitan Internet.</p><p class="muted">Consejo: guarda una copia de seguridad después de añadir muchos libros o antes de cambiar de iPhone.</p></div><p class="footnote">No borres los datos de la aplicación si no has exportado antes tu biblioteca. El contenido no se sincroniza automáticamente con iCloud.</p>`;
+ $('content').innerHTML=`<span class="eyebrow">TU ESPACIO</span><h1 class="page-title">Ajustes</h1><p class="page-subtitle">Tus libros son tuyos. Conserva una copia de tu colección.</p><div class="mini-card"><h3>Copias de seguridad</h3><button type="button" class="settings-button" data-action="export"><span><strong>Exportar mi biblioteca</strong><small>Crear un archivo JSON con todos tus libros y notas.</small></span><span class="arrow">↓</span></button><button type="button" class="settings-button" data-action="import"><span><strong>Importar biblioteca</strong><small>Recuperar libros desde un archivo JSON. No borra los existentes.</small></span><span class="arrow">↑</span></button></div><div class="mini-card"><h3>Privacidad y funcionamiento</h3><p class="muted">Tus fichas se almacenan en este dispositivo mediante ${state.storage==='indexedDB'?'IndexedDB':'almacenamiento local alternativo'}. No creamos ninguna cuenta ni enviamos tu colección a un servidor propio.</p><p class="muted">La búsqueda por ISBN consulta Open Library y Google Books. Las portadas se cargan de sus direcciones de origen. Para escanear códigos, se carga una biblioteca de lectura externa al activar la cámara.</p><p class="muted"><strong>Importante:</strong> Safari y una aplicación añadida a Inicio pueden tener almacenamientos separados. Importa una copia dentro de la aplicación instalada si fuera necesario.</p></div><div class="mini-card"><h3>Acerca de esta versión</h3><p class="muted">Mi Biblioteca · Versión 1.3. Funciona sin conexión para consultar y modificar fichas ya guardadas; la consulta ISBN, las portadas no almacenadas y el lector de barras necesitan Internet.</p><p class="muted">Consejo: guarda una copia de seguridad después de añadir muchos libros o antes de cambiar de iPhone.</p></div><p class="footnote">No borres los datos de la aplicación si no has exportado antes tu biblioteca. El contenido no se sincroniza automáticamente con iCloud.</p>`;
 }
 function render(){const nav=document.querySelectorAll('[data-tab]');nav.forEach(b=>{const active=b.dataset.tab===state.tab;b.classList.toggle('active',active);active?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});if(state.tab==='biblioteca')renderBiblioteca();if(state.tab==='lecturas')renderLecturas();if(state.tab==='estadisticas')renderStats();if(state.tab==='ajustes')renderAjustes();}
 function switchTab(tab){if(!['biblioteca','lecturas','estadisticas','ajustes'].includes(tab))return;state.tab=tab;render();window.scrollTo(0,0);}
@@ -175,37 +175,107 @@ async function getJSON(url,timeoutMs=13000){
  const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),timeoutMs);
  try{const resp=await fetch(url,{signal:ctrl.signal,headers:{Accept:'application/json'}});if(!resp.ok)throw new Error(`HTTP ${resp.status}`);return await resp.json();}finally{clearTimeout(timer);}
 }
+// ISBN: consultas independientes para evitar depender de una sola base de datos.
+// Google Books y Open Library no garantizan cobertura de todas las ediciones.
+function yearFromDate(v){return (String(v||'').match(/\b(1\d{3}|20\d{2}|21\d{2})\b/)||[])[0]||'';}
+function fallbackCover(isbn){return `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`;}
+async function findOpenLibraryEdition(isbn){
+ const d=await getJSON(`https://openlibrary.org/isbn/${isbn}.json`,9000);
+ if(!d?.title)return null;
+ const authors=await Promise.all((d.authors||[]).slice(0,4).map(async a=>{
+   if(!/^\/authors\/OL\d+A$/.test(a?.key||''))return '';
+   try{return (await getJSON(`https://openlibrary.org${a.key}.json`,5000)).name||'';}catch{return '';}
+ }));
+ return {title:d.title,author:authors.filter(Boolean).join(', '),publisher:(d.publishers||[])[0]||'',year:yearFromDate(d.publish_date),pages:d.number_of_pages||'',coverUrl:d.covers?.[0]>0?`https://covers.openlibrary.org/b/id/${d.covers[0]}-L.jpg?default=false`:fallbackCover(isbn)};
+}
+async function findOpenLibraryBooks(isbn){
+ const data=await getJSON(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`,9000);
+ const d=data?.[`ISBN:${isbn}`];if(!d?.title)return null;
+ return {title:d.title,author:(d.authors||[]).map(a=>a.name).filter(Boolean).join(', '),publisher:d.publishers?.[0]?.name||'',year:yearFromDate(d.publish_date),pages:d.number_of_pages||'',coverUrl:safeUrl(d.cover?.large||d.cover?.medium)||fallbackCover(isbn)};
+}
+async function findOpenLibrarySearch(isbn){
+ const d=await getJSON(`https://openlibrary.org/search.json?isbn=${isbn}&fields=key,title,author_name,first_publish_year,cover_i,isbn&limit=8`,9000);
+ const book=(d.docs||[]).find(x=>x.title&&x.isbn?.includes(isbn));
+ if(!book)return null;
+ // La búsqueda devuelve a veces datos de la obra, no de la edición: no inventamos editorial ni páginas.
+ return {title:book.title,author:(book.author_name||[]).slice(0,4).join(', '),publisher:'',year:'',pages:'',coverUrl:book.cover_i?`https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg?default=false`:fallbackCover(isbn)};
+}
+async function findGoogleBooks(isbn){
+ // Buscamos por ISBN y verificamos el identificador exacto para evitar títulos equivocados.
+ for(const q of [`isbn:${isbn}`,isbn]){
+   const d=await getJSON(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=12&printType=books`,9000);
+   const v=(d.items||[]).map(item=>item.volumeInfo||{}).find(x=>
+      (x.industryIdentifiers||[]).some(y=>normalizeISBN(y.identifier)===isbn)
+   );
+   if(v?.title){
+      let cover=safeUrl(v.imageLinks?.thumbnail||v.imageLinks?.smallThumbnail||'');
+      if(cover.startsWith('http:'))cover='https:'+cover.slice(5);
+      return {title:[v.title,v.subtitle].filter(Boolean).join(': '),author:(v.authors||[]).join(', '),publisher:v.publisher||'',year:yearFromDate(v.publishedDate),pages:v.pageCount||'',coverUrl:cover||fallbackCover(isbn)};
+   }
+ }
+ return null;
+}
 async function fetchBookByISBN(isbn){
- let book=null;
- try{
-   const data=await getJSON(`https://openlibrary.org/isbn/${encodeURIComponent(isbn)}.json`);
-   const authors=await Promise.all((data.authors||[]).slice(0,4).map(async a=>{
-     if(!a.key||!/^\/authors\/OL\d+A$/.test(a.key))return '';
-     try{return (await getJSON(`https://openlibrary.org${a.key}.json`,8500)).name||'';}catch{return '';}
-   }));
-   book={title:data.title||'',author:authors.filter(Boolean).join(', '),publisher:(data.publishers||[])[0]||'',year:(String(data.publish_date||'').match(/\b(1\d{3}|20\d{2}|21\d{2})\b/)||[])[0]||'',pages:data.number_of_pages||'',coverUrl:(data.covers||[]).length&&data.covers[0]>0?`https://covers.openlibrary.org/b/id/${data.covers[0]}-L.jpg?default=false`:`https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`};
- }catch{ /* Algunas ediciones solo aparecen en la API de libros. */ }
- if(book?.title)return book;
- const result=await getJSON(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`);
- const data=result[`ISBN:${isbn}`];if(!data)throw new Error('not_found');
- return {title:data.title||'',author:(data.authors||[]).map(a=>a.name).filter(Boolean).join(', '),publisher:(data.publishers||[])[0]?.name||'',year:(String(data.publish_date||'').match(/\b(1\d{3}|20\d{2}|21\d{2})\b/)||[])[0]||'',pages:data.number_of_pages||'',coverUrl:safeUrl(data.cover?.large||data.cover?.medium||`https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`)};
+ let responsive=false;
+ const sources=[
+  ['Open Library (edición)',findOpenLibraryEdition],
+  ['Open Library (fichas)',findOpenLibraryBooks],
+  ['Google Books',findGoogleBooks],
+  ['Open Library (catálogo)',findOpenLibrarySearch]
+ ];
+ // En paralelo: si uno falla o tarda, los demás pueden devolver datos.
+ const results=await Promise.all(sources.map(async ([name,fn])=>{
+   try{const book=await fn(isbn);responsive=true;return book?.title?{...book,source:name}:null;}
+   catch(e){
+     if(/^HTTP 4(?:00|04|29)$/.test(e.message||''))responsive=true;
+     console.warn('Fallo en consulta bibliográfica',name,e);
+     return null;
+   }
+ }));
+ const found=results.find(Boolean);
+ if(found)return found;
+ throw new Error(responsive?'not_found':'network_error');
 }
 async function lookupISBN(){
  const isbn=normalizeISBN($('isbn').value);
- if(!validISBN(isbn)){setLookupStatus('Introduce un ISBN-10 o ISBN-13 válido, con todos sus dígitos.','error');return;}
- $('isbn').value=isbn;$('lookupBtn').disabled=true;setLookupStatus('Buscando datos del libro en Open Library...');
+ if(!validISBN(isbn)){
+   setLookupStatus('ISBN incorrecto: comprueba los 10 o 13 caracteres y el dígito de control.','error');return;
+ }
+ $('isbn').value=isbn;
+ $('lookupBtn').disabled=true;
+ setLookupStatus(`Consultando bibliotecas para el ISBN ${isbn}...`);
  try{
    const b=await fetchBookByISBN(isbn);
-   ['title','author','publisher','year','pages','coverUrl'].forEach(k=>{if(b[k]&&(!$(k).value.trim()||k==='coverUrl'))$(k).value=b[k];});
-   setLookupStatus('Datos encontrados. Revisa la edición y guarda el libro.','success');toast('Ficha recuperada por ISBN.');
+   ['title','author','publisher','year','pages','coverUrl'].forEach(k=>{
+     if(b[k]&&(!$(k).value.trim()||k==='coverUrl'))$(k).value=b[k];
+   });
+   setLookupStatus(`Datos encontrados en ${b.source}. Comprueba la edición y pulsa «Guardar libro».`,'success');
+   toast('Datos bibliográficos recuperados.');
  }catch(e){
-   const msg=e.message==='not_found'?'No se ha encontrado este ISBN. Puedes introducir los datos a mano.':'No se han podido consultar los datos. Comprueba Internet o rellena la ficha manualmente.';
+   const msg=e.message==='not_found'?
+     `No consta este ISBN (${isbn}) en las fuentes consultadas. Puede ser una edición sin registrar; puedes rellenar la ficha manualmente.`:
+     'No se ha podido contactar con las bibliotecas. Comprueba Internet y vuelve a pulsar «Buscar».';
    setLookupStatus(msg,'error');
  }finally{$('lookupBtn').disabled=false;}
 }
 
 function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.async=true;script.onload=resolve;script.onerror=()=>{script.remove();reject(new Error('No se pudo cargar el lector.'));};document.head.appendChild(script);});}
 async function scannerLibrary(){if(window.Html5Qrcode)return;let error;for(const url of SCANNER_CDNS){try{await loadScript(url);if(window.Html5Qrcode)return;}catch(e){error=e;}}throw error||new Error('No se pudo cargar el escáner');}
+
+const ZXING_CDNS=[
+ 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.2.1/umd/zxing-browser.min.js',
+ 'https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js'
+];
+async function zxingLibrary(){
+ if(window.ZXingBrowser?.BrowserMultiFormatOneDReader)return;
+ let error;
+ for(const url of ZXING_CDNS){
+   try{await loadScript(url);if(window.ZXingBrowser?.BrowserMultiFormatOneDReader)return;}
+   catch(e){error=e;}
+ }
+ throw error||new Error('No se pudo cargar el lector de fotografías.');
+}
+
 function isbnDeCodigoLeido(value){
   // Algunas etiquetas ISBN añaden cinco dígitos de precio después del EAN-13.
   const digits=String(value||'').replace(/[^0-9]/g,'');
@@ -285,38 +355,68 @@ async function stopScanner(){
   state.scannerRunning=false;
   $('scannerOverlay').hidden=true;
   $('reader').replaceChildren();
+  const preview=$('barcodePreview');
+  if(preview){preview.hidden=true;preview.removeAttribute('src');}
+  if(state.photoObjectUrl){URL.revokeObjectURL(state.photoObjectUrl);state.photoObjectUrl=null;}
   if($('modalOverlay').hidden)document.body.style.overflow='';
 }
 async function scanBarcodePhoto(event){
-  const file=event.target.files?.[0];
-  event.target.value='';
-  if(!file)return;
-  await stopScanner();
-  const token=++state.scannerToken;
-  state.scanResolved=false;
-  $('scannerOverlay').hidden=false;
-  $('scannerStatus').textContent='Analizando la fotografía del código de barras...';
-  document.body.style.overflow='hidden';
-  try{
-    await scannerLibrary();
-    if(token!==state.scannerToken)return;
-    const F=window.Html5QrcodeSupportedFormats;
-    const scanner=new window.Html5Qrcode('reader',{formatsToSupport:[F.EAN_13],verbose:false});
-    state.scanner=scanner;
-    const decoded=await scanner.scanFile(file,true);
-    if(token!==state.scannerToken)return;
-    if(!await aplicarISBNLeido(decoded))
-      $('scannerStatus').textContent='El código no parece un ISBN válido (978/979). Prueba otra foto.';
-  }catch(error){
-    console.warn('Fotografía no reconocida',error);
-    if(token!==state.scannerToken)return;
-    $('scannerStatus').textContent='No se distingue el ISBN. Haz la foto nítida, con buena luz, sin reflejos, y acerca la cámara al código.';
-  }finally{
-    if(token===state.scannerToken&&state.scanner&&!state.scannerRunning){
-      try{await state.scanner.clear();}catch(error){console.warn(error);}
-      state.scanner=null;
-    }
-  }
+ const file=event.target.files?.[0];
+ event.target.value='';
+ if(!file)return;
+ await stopScanner();
+ const token=++state.scannerToken;
+ state.scanResolved=false;
+ $('scannerOverlay').hidden=false;
+ $('scannerStatus').textContent='Fotografía recibida. Analizando el código de barras...';
+ document.body.style.overflow='hidden';
+ const preview=$('barcodePreview');
+ const photoUrl=URL.createObjectURL(file);
+ state.photoObjectUrl=photoUrl;
+ preview.src=photoUrl;preview.hidden=false;
+ const errors=[];
+ let decoded='';
+ try{
+   // Primer motor: ZXing Browser, independiente del lector de vídeo que ya fallaba en iPhone.
+   try{
+     await zxingLibrary();
+     if(token!==state.scannerToken)return;
+     $('scannerStatus').textContent='Foto cargada. Buscando ISBN con el lector alternativo...';
+     const reader=new window.ZXingBrowser.BrowserMultiFormatOneDReader();
+     const result=await reader.decodeFromImageUrl(photoUrl);
+     decoded=result?.getText?.()||result?.text||'';
+   }catch(e){errors.push(`ZXing: ${e.name||e.message||'sin lectura'}`);}
+   if(token!==state.scannerToken)return;
+   if(!isbnDeCodigoLeido(decoded)){
+     // Segundo intento con el lector anterior, útil para imágenes en ciertos dispositivos.
+     try{
+       $('scannerStatus').textContent='Probando una segunda forma de analizar la foto...';
+       await scannerLibrary();
+       if(token!==state.scannerToken)return;
+       const F=window.Html5QrcodeSupportedFormats;
+       const scanner=new window.Html5Qrcode('reader',{formatsToSupport:[F.EAN_13],verbose:false});
+       state.scanner=scanner;
+       decoded=await scanner.scanFile(file,true);
+     }catch(e){errors.push(`Html5Qrcode: ${e.name||e.message||'sin lectura'}`);}
+   }
+   if(token!==state.scannerToken)return;
+   if(isbnDeCodigoLeido(decoded)){
+     await aplicarISBNLeido(decoded);
+     return;
+   }
+   $('scannerStatus').textContent=decoded?
+     'Se ha leído un código, pero no es un ISBN válido de 13 dígitos (978/979).':
+     'La fotografía se ha recibido, pero ninguno de los dos lectores ha reconocido el código. Prueba a acercarte, enfocar las barras y evitar reflejos. También puedes introducir los números manualmente.';
+   console.warn('Lectura fotográfica sin ISBN válido',errors);
+ }catch(error){
+   console.error('Error al analizar la fotografía',error);
+   if(token===state.scannerToken)$('scannerStatus').textContent=`La fotografía se ha recibido, pero hubo un error al analizarla (${error.name||'error'}). Comprueba Internet e inténtalo de nuevo.`;
+ }finally{
+   if(token===state.scannerToken&&state.scanner&&!state.scannerRunning){
+     try{await state.scanner.clear();}catch(e){console.warn(e);}
+     state.scanner=null;
+   }
+ }
 }
 
 async function exportBooks(){

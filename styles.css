@@ -5,3 +5,5 @@
 @media(prefers-reduced-motion:reduce){.toast{transition:none}}
 
 .photo-action{display:flex;margin-top:10px;text-align:center;cursor:pointer}.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important;opacity:0!important}
+
+.barcode-preview{display:block;width:100%;max-height:240px;object-fit:contain;background:#edf0e9;border-radius:12px;margin:12px 0}.barcode-preview[hidden]{display:none}

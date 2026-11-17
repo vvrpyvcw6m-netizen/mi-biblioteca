@@ -1,5 +1,5 @@
 /* Mi Biblioteca: cachea la app; la consulta ISBN y el escáner requieren Internet. */
-const CACHE_NAME='mi-biblioteca-shell-v1-2';
+const CACHE_NAME='mi-biblioteca-shell-v1-3';
 const ASSETS=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(names=>Promise.all(names.filter(name=>name.startsWith('mi-biblioteca-shell-')&&name!==CACHE_NAME).map(name=>caches.delete(name)))).then(()=>self.clients.claim()));});
