@@ -1,13 +1,13 @@
-# Mi Biblioteca — versión 1.5
+# Mi Biblioteca — versión 1.5.1
 
 PWA para gestionar una biblioteca personal de libros **en papel y ebook** desde un iPhone. No incluye audiolibros.
 
-## Novedades de la versión 1.5
+## Novedades de la versión 1.5.1
 
 - **Formato:** Papel o Ebook. Para Papel, «Ubicación física»; para Ebook, «Plataforma / ubicación digital» (Kindle, Apple Books, Kobo, PDF u otro texto libre).
 - **Tipo de obra:** Ensayo, novela, biografía, memorias, relatos y cuentos, poesía, teatro, manual, divulgación, otro o sin clasificar.
-- **Materias / ramas del conocimiento:** campo editable (por ejemplo «Economía, Filosofía, Derecho»). Admite varias materias separadas por comas y conserva las que ya hayas escrito.
-- **Tres filtros combinables** en Biblioteca: formato, tipo y materia. Se combinan también con «Por leer / Leyendo / Leídos» y con la búsqueda de texto. Botón de limpieza.
+- **Categorías en cascada:** al elegir Ensayo, aparecen materias del conocimiento (Economía, Filosofía, Derecho...); al elegir Novela, aparecen géneros literarios (Terror, Misterio, Aventuras...). Los demás tipos conservan sus temas o categorías. Admite varias separadas por comas y conserva las que ya hayas escrito.
+- **Tres filtros combinables** en Biblioteca: formato, tipo y su subcategoría dependiente (materia o género según el tipo). Se combinan también con «Por leer / Leyendo / Leídos» y con la búsqueda de texto. Botón de limpieza.
 - **Buscar por portada:** fotografiarla con el iPhone, elegir imagen de Fotos o escribir título/autor. El sistema extrae texto mediante OCR local y consulta posibles coincidencias en Open Library y Google Books. **Debes elegir la coincidencia y revisar edición/ISBN** antes de guardar.
 
 ## Compatibilidad con libros ya guardados
@@ -16,7 +16,7 @@ La app sigue usando el MISMO nombre y versión de base de datos (`mi-biblioteca-
 
 - Libros antiguos sin formato: **Papel**.
 - Libros antiguos sin tipo: **Sin clasificar**, hasta que edites su ficha.
-- La antigua información del campo `genre` sigue siendo la **materia** en la versión nueva; no se borra.
+- La información del campo `genre` se conserva sin cambios. Pasa a mostrarse como «Materia» si eliges Ensayo, o como «Género literario» si eliges Novela. Revisa manualmente los libros que cambies de tipo, porque sus etiquetas anteriores no se borran automáticamente.
 - Los datos nuevos se guardan en las fichas cuando las editas o creas.
 
 **Haz una copia de seguridad en Ajustes → Exportar mi biblioteca antes de actualizar. No borres la PWA, no vacíes sus datos web y no publiques el JSON de copia en GitHub.**
@@ -24,10 +24,10 @@ La app sigue usando el MISMO nombre y versión de base de datos (`mi-biblioteca-
 ## Actualización desde iPhone
 
 1. Desde la app anterior, **exporta la biblioteca** y guarda el `.json` en la app Archivos.
-2. Descomprime `Mi-Biblioteca-actualizacion-v1.5.zip` con Archivos del iPhone.
+2. Descomprime `Mi-Biblioteca-actualizacion-v1.5.1.zip` con Archivos del iPhone.
 3. Accede a tu repositorio: `https://github.com/vvrpyvcw6m-netizen/mi-biblioteca`.
 4. Sube o reemplaza los **cuatro archivos** directamente en la raíz, no dentro de una carpeta: `app.js`, `index.html`, `styles.css` y `sw.js`. En Safari puede resultar necesario «Solicitar sitio web de escritorio» para ver `Add file → Upload files`.
-5. Confirma `Commit changes` y abre `https://vvrpyvcw6m-netizen.github.io/mi-biblioteca/` en Safari. Cuando se publiquen los cambios, entra en **Ajustes** y confirma **Versión 1.5**. Es posible que debas cerrar y volver a abrir la app instalada para cargar la actualización.
+5. Confirma `Commit changes` y abre `https://vvrpyvcw6m-netizen.github.io/mi-biblioteca/` en Safari. Cuando se publiquen los cambios, entra en **Ajustes** y confirma **Versión 1.5.1**. Es posible que debas cerrar y volver a abrir la app instalada para cargar la actualización.
 6. Prueba los filtros, busca por portada y verifica que los libros anteriores siguen allí.
 
 ## Privacidad y límites
@@ -45,3 +45,12 @@ La app sigue usando el MISMO nombre y versión de base de datos (`mi-biblioteca-
 - `styles.css`: diseño móvil.
 - `sw.js`: caché PWA con nombre v1.5, red primero y fallback sin conexión.
 - `manifest.webmanifest`, `icon-192.png`, `icon-512.png`: instalación y iconos.
+
+## Cascada: cómo funciona
+
+- En **Biblioteca**, elige primero «Tipo de libro». El segundo filtro mostrará «Materia / rama del conocimiento» para Ensayo, «Género literario» para Novela y «Tema / categoría» para los demás tipos. Al cambiar de tipo se limpia SOLO el segundo filtro, no se alteran las fichas.
+- En **Añadir/Editar libro**, el campo de etiquetas muestra sugerencias correspondientes al tipo. Puedes añadir etiquetas personalizadas o varias separadas por comas; también se recuperan etiquetas existentes de libros del mismo tipo.
+- Los filtros Papel/Ebook y estado de lectura siguen siendo independientes.
+- Las obras sin tipo asignado siguen visibles en «Todos los tipos», y también se pueden seleccionar explícitamente como «Sin clasificar».
+
+**No borres la aplicación ni tus datos para actualizarla.** Si ya habías descargado la v1.5 anterior pero aún no la habías subido a GitHub, utiliza directamente esta versión 1.5.1.
