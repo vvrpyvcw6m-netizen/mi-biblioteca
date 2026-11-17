@@ -13,7 +13,7 @@ const SCANNER_CDNS = [
 ];
 const LABELS = {pendiente:'Por leer', leyendo:'Leyendo', leido:'Leído'};
 const $ = (id) => document.getElementById(id);
-const state = {books:[],tab:'biblioteca',filter:'todos',query:'',sort:'newest',db:null,storage:'indexedDB',activeId:null,scanner:null,scannerRunning:false,scanResolved:false,scannerToken:0,toastTimer:null};
+const state = {books:[],tab:'biblioteca',filter:'todos',query:'',sort:'newest',db:null,storage:'indexedDB',activeId:null,scanner:null,scannerRunning:false,scanResolved:false,scannerToken:0,scanHintTimer:null,toastTimer:null};
 
 function escapeHTML(value='') {
   return String(value ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -130,7 +130,7 @@ function renderStats(){
  $('content').innerHTML=`<span class="eyebrow">TU BIBLIOTECA EN NÚMEROS</span><h1 class="page-title">Tu historia lectora</h1><p class="page-subtitle">Una mirada a los libros que te acompañan.</p><div class="stat-grid"><div class="stat-box"><strong>${count}</strong><span>Libros en tu colección</span></div><div class="stat-box"><strong>${counts.leido}</strong><span>Libros leídos</span></div><div class="stat-box"><strong>${finished}</strong><span>Terminados en ${thisYear}</span></div><div class="stat-box"><strong>${average}${average==='—'?'':' ★'}</strong><span>Valoración media</span></div></div><div class="mini-card"><h3>Estado de tus lecturas</h3>${rows.map(([key,label,num,cl])=>`<div class="bar-item"><div class="bar-title"><span>${label}</span><strong>${num}</strong></div><div class="bar-bg"><div class="bar-fill ${cl}" style="width:${count?Math.round(num*100/count):0}%"></div></div></div>`).join('')}</div><div class="mini-card"><h3>Un poco más</h3><p class="muted">Páginas totales de los libros marcados como leídos: <strong>${pages.toLocaleString('es-ES')}</strong></p><p class="muted">Libros valorados: <strong>${rated.length}</strong></p><p class="muted">La cifra de páginas depende de las que hayas registrado en cada ficha.</p></div>${Object.keys(byYear).length?`<div class="mini-card"><h3>Terminados por año</h3>${Object.entries(byYear).sort((a,b)=>b[0].localeCompare(a[0])).map(([year,num])=>`<div class="bar-title" style="padding:8px 0;border-bottom:1px solid var(--line)"><span>${escapeHTML(year)}</span><strong>${num} ${num===1?'libro':'libros'}</strong></div>`).join('')}</div>`:''}`;
 }
 function renderAjustes(){
- $('content').innerHTML=`<span class="eyebrow">TU ESPACIO</span><h1 class="page-title">Ajustes</h1><p class="page-subtitle">Tus libros son tuyos. Conserva una copia de tu colección.</p><div class="mini-card"><h3>Copias de seguridad</h3><button type="button" class="settings-button" data-action="export"><span><strong>Exportar mi biblioteca</strong><small>Crear un archivo JSON con todos tus libros y notas.</small></span><span class="arrow">↓</span></button><button type="button" class="settings-button" data-action="import"><span><strong>Importar biblioteca</strong><small>Recuperar libros desde un archivo JSON. No borra los existentes.</small></span><span class="arrow">↑</span></button></div><div class="mini-card"><h3>Privacidad y funcionamiento</h3><p class="muted">Tus fichas se almacenan en este dispositivo mediante ${state.storage==='indexedDB'?'IndexedDB':'almacenamiento local alternativo'}. No creamos ninguna cuenta ni enviamos tu colección a un servidor propio.</p><p class="muted">La búsqueda por ISBN consulta Open Library. Las portadas se cargan de sus direcciones de origen. Para escanear códigos, se carga una biblioteca de lectura externa al activar la cámara.</p><p class="muted"><strong>Importante:</strong> Safari y una aplicación añadida a Inicio pueden tener almacenamientos separados. Importa una copia dentro de la aplicación instalada si fuera necesario.</p></div><div class="mini-card"><h3>Acerca de esta versión</h3><p class="muted">Mi Biblioteca · Versión 1.1. Funciona sin conexión para consultar y modificar fichas ya guardadas; la consulta ISBN, las portadas no almacenadas y el lector de barras necesitan Internet.</p><p class="muted">Consejo: guarda una copia de seguridad después de añadir muchos libros o antes de cambiar de iPhone.</p></div><p class="footnote">No borres los datos de la aplicación si no has exportado antes tu biblioteca. El contenido no se sincroniza automáticamente con iCloud.</p>`;
+ $('content').innerHTML=`<span class="eyebrow">TU ESPACIO</span><h1 class="page-title">Ajustes</h1><p class="page-subtitle">Tus libros son tuyos. Conserva una copia de tu colección.</p><div class="mini-card"><h3>Copias de seguridad</h3><button type="button" class="settings-button" data-action="export"><span><strong>Exportar mi biblioteca</strong><small>Crear un archivo JSON con todos tus libros y notas.</small></span><span class="arrow">↓</span></button><button type="button" class="settings-button" data-action="import"><span><strong>Importar biblioteca</strong><small>Recuperar libros desde un archivo JSON. No borra los existentes.</small></span><span class="arrow">↑</span></button></div><div class="mini-card"><h3>Privacidad y funcionamiento</h3><p class="muted">Tus fichas se almacenan en este dispositivo mediante ${state.storage==='indexedDB'?'IndexedDB':'almacenamiento local alternativo'}. No creamos ninguna cuenta ni enviamos tu colección a un servidor propio.</p><p class="muted">La búsqueda por ISBN consulta Open Library. Las portadas se cargan de sus direcciones de origen. Para escanear códigos, se carga una biblioteca de lectura externa al activar la cámara.</p><p class="muted"><strong>Importante:</strong> Safari y una aplicación añadida a Inicio pueden tener almacenamientos separados. Importa una copia dentro de la aplicación instalada si fuera necesario.</p></div><div class="mini-card"><h3>Acerca de esta versión</h3><p class="muted">Mi Biblioteca · Versión 1.2. Funciona sin conexión para consultar y modificar fichas ya guardadas; la consulta ISBN, las portadas no almacenadas y el lector de barras necesitan Internet.</p><p class="muted">Consejo: guarda una copia de seguridad después de añadir muchos libros o antes de cambiar de iPhone.</p></div><p class="footnote">No borres los datos de la aplicación si no has exportado antes tu biblioteca. El contenido no se sincroniza automáticamente con iCloud.</p>`;
 }
 function render(){const nav=document.querySelectorAll('[data-tab]');nav.forEach(b=>{const active=b.dataset.tab===state.tab;b.classList.toggle('active',active);active?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});if(state.tab==='biblioteca')renderBiblioteca();if(state.tab==='lecturas')renderLecturas();if(state.tab==='estadisticas')renderStats();if(state.tab==='ajustes')renderAjustes();}
 function switchTab(tab){if(!['biblioteca','lecturas','estadisticas','ajustes'].includes(tab))return;state.tab=tab;render();window.scrollTo(0,0);}
@@ -206,45 +206,117 @@ async function lookupISBN(){
 
 function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.async=true;script.onload=resolve;script.onerror=()=>{script.remove();reject(new Error('No se pudo cargar el lector.'));};document.head.appendChild(script);});}
 async function scannerLibrary(){if(window.Html5Qrcode)return;let error;for(const url of SCANNER_CDNS){try{await loadScript(url);if(window.Html5Qrcode)return;}catch(e){error=e;}}throw error||new Error('No se pudo cargar el escáner');}
+function isbnDeCodigoLeido(value){
+  // Algunas etiquetas ISBN añaden cinco dígitos de precio después del EAN-13.
+  const digits=String(value||'').replace(/[^0-9]/g,'');
+  const matches=digits.match(/97[89][0-9]{10}/g)||[];
+  return matches.find(isbn=>validISBN(isbn))||'';
+}
+async function aplicarISBNLeido(decoded){
+  const isbn=isbnDeCodigoLeido(decoded);
+  if(!isbn)return false;
+  state.scanResolved=true;
+  await stopScanner();
+  $('isbn').value=isbn;
+  setLookupStatus('ISBN '+isbn+' detectado. Buscando los datos del libro...','success');
+  await lookupISBN();
+  return true;
+}
 async function startScanner(){
- if(!window.isSecureContext){toast('La cámara necesita una web HTTPS.');return;}
- if(!$('scannerOverlay').hidden)return;
- const token=++state.scannerToken; // Identifica esta apertura; antes faltaba y bloqueaba la cámara.
- $('scannerOverlay').hidden=false;$('scannerStatus').textContent='Cargando el lector de códigos...';state.scanResolved=false;document.body.style.overflow='hidden';
- try{
-   await scannerLibrary();
-   if($('scannerOverlay').hidden||token!==state.scannerToken)return;
-   $('scannerStatus').textContent='Solicitando permiso para la cámara...';
-   const F=window.Html5QrcodeSupportedFormats;
-   const scanner=new window.Html5Qrcode('reader',{formatsToSupport:[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E],verbose:false});
-   state.scanner=scanner;
-   await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:250,height:135},disableFlip:true},async decoded=>{
-     if(state.scanResolved||token!==state.scannerToken)return;
-     const isbn=normalizeISBN(decoded);
-     if(!validISBN(isbn))return;
-     state.scanResolved=true;
-     await stopScanner();$('isbn').value=isbn;setLookupStatus('ISBN escaneado. Consultando ficha...','success');lookupISBN();
-   },()=>{});
-   // Si el usuario cerró la ventana mientras Safari solicitaba permiso, liberamos la cámara.
-   if(token!==state.scannerToken||$('scannerOverlay').hidden){
-     try{await scanner.stop();}catch(e){console.warn(e);}
-     try{await scanner.clear();}catch(e){console.warn(e);}
-     return;
-   }
-   state.scannerRunning=true;
-   $('scannerStatus').textContent='Sitúa el código de barras dentro del recuadro y mantén el iPhone quieto.';
- }catch(error){
-   console.error(error);
-   if(token!==state.scannerToken)return;
-   const reason=String(error?.name||error?.message||'error desconocido').slice(0,110);
-   $('scannerStatus').textContent=`No se ha podido abrir la cámara (${reason}). Prueba también la web en Safari. Si persiste, escribe el ISBN manualmente.`;
- }
+  if(!window.isSecureContext){toast('La cámara necesita una web HTTPS.');return;}
+  if(!$('scannerOverlay').hidden)return;
+  const token=++state.scannerToken;
+  state.scanResolved=false;
+  $('scannerOverlay').hidden=false;
+  $('scannerStatus').textContent='Preparando cámara trasera...';
+  document.body.style.overflow='hidden';
+  try{
+    await scannerLibrary();
+    if($('scannerOverlay').hidden||token!==state.scannerToken)return;
+    $('scannerStatus').textContent='Solicitando permiso para la cámara...';
+    const F=window.Html5QrcodeSupportedFormats;
+    // Solo EAN-13, el formato de los códigos ISBN modernos.
+    const scanner=new window.Html5Qrcode('reader',{
+      formatsToSupport:[F.EAN_13],verbose:false,
+      experimentalFeatures:{useBarCodeDetectorIfSupported:true}
+    });
+    state.scanner=scanner;
+    // Sin qrbox estrecho: analizar toda la imagen ayuda con códigos lineales.
+    await scanner.start(
+      {facingMode:'environment'},
+      {fps:12,disableFlip:true,videoConstraints:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}},
+      async decoded=>{
+        if(state.scanResolved||token!==state.scannerToken)return;
+        if(await aplicarISBNLeido(decoded))return;
+        $('scannerStatus').textContent='Código detectado, pero no parece un ISBN válido (978 o 979).';
+      },
+      ()=>{}
+    );
+    if(token!==state.scannerToken||$('scannerOverlay').hidden){
+      try{await scanner.stop();}catch(e){console.warn(e);}
+      try{await scanner.clear();}catch(e){console.warn(e);}
+      return;
+    }
+    state.scannerRunning=true;
+    $('scannerStatus').textContent='Centra el código completo, con buena luz, a unos 20–30 cm del iPhone.';
+    state.scanHintTimer=setTimeout(()=>{
+      if(token===state.scannerToken&&state.scannerRunning&&!state.scanResolved)
+        $('scannerStatus').textContent='¿Sigue sin leerlo? Mueve el iPhone despacio para enfocar o toca «Fotografiar el código».';
+    },8000);
+  }catch(error){
+    console.error(error);
+    if(token!==state.scannerToken)return;
+    const reason=String(error?.name||error?.message||'error desconocido').slice(0,110);
+    $('scannerStatus').textContent='No se ha podido iniciar el escáner ('+reason+'). Prueba «Fotografiar el código» o introduce el ISBN.';
+  }
 }
 async function stopScanner(){
- state.scannerToken++;
- const scanner=state.scanner;state.scanner=null;
- if(scanner){try{if(state.scannerRunning)await scanner.stop();await scanner.clear();}catch(error){console.warn(error);}}
- state.scannerRunning=false;$('scannerOverlay').hidden=true;$('reader').replaceChildren();if($('modalOverlay').hidden)document.body.style.overflow='';
+  state.scannerToken++;
+  clearTimeout(state.scanHintTimer);
+  state.scanHintTimer=null;
+  const scanner=state.scanner;
+  state.scanner=null;
+  if(scanner){
+    try{
+      if(state.scannerRunning)await scanner.stop();
+      await scanner.clear();
+    }catch(error){console.warn(error);}
+  }
+  state.scannerRunning=false;
+  $('scannerOverlay').hidden=true;
+  $('reader').replaceChildren();
+  if($('modalOverlay').hidden)document.body.style.overflow='';
+}
+async function scanBarcodePhoto(event){
+  const file=event.target.files?.[0];
+  event.target.value='';
+  if(!file)return;
+  await stopScanner();
+  const token=++state.scannerToken;
+  state.scanResolved=false;
+  $('scannerOverlay').hidden=false;
+  $('scannerStatus').textContent='Analizando la fotografía del código de barras...';
+  document.body.style.overflow='hidden';
+  try{
+    await scannerLibrary();
+    if(token!==state.scannerToken)return;
+    const F=window.Html5QrcodeSupportedFormats;
+    const scanner=new window.Html5Qrcode('reader',{formatsToSupport:[F.EAN_13],verbose:false});
+    state.scanner=scanner;
+    const decoded=await scanner.scanFile(file,true);
+    if(token!==state.scannerToken)return;
+    if(!await aplicarISBNLeido(decoded))
+      $('scannerStatus').textContent='El código no parece un ISBN válido (978/979). Prueba otra foto.';
+  }catch(error){
+    console.warn('Fotografía no reconocida',error);
+    if(token!==state.scannerToken)return;
+    $('scannerStatus').textContent='No se distingue el ISBN. Haz la foto nítida, con buena luz, sin reflejos, y acerca la cámara al código.';
+  }finally{
+    if(token===state.scannerToken&&state.scanner&&!state.scannerRunning){
+      try{await state.scanner.clear();}catch(error){console.warn(error);}
+      state.scanner=null;
+    }
+  }
 }
 
 async function exportBooks(){
@@ -295,6 +367,7 @@ function bindEvents(){
  $('lookupBtn').addEventListener('click',lookupISBN);
  $('isbn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lookupISBN();}});
  $('scanBtn').addEventListener('click',startScanner);
+  $('barcodePhoto').addEventListener('change',scanBarcodePhoto);
  $('closeScanner').addEventListener('click',stopScanner);$('cancelScanner').addEventListener('click',stopScanner);
  $('importFile').addEventListener('change',e=>importBooks(e.target.files?.[0]));
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('scannerOverlay').hidden)stopScanner();else if(!$('modalOverlay').hidden)closeModal();else if(!$('detailOverlay').hidden)closeDetail();}});
